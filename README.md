@@ -1,4 +1,4 @@
-# Proof that 8 is just one bite away from a 3
+# Proof that 8 is just one bite away from 3
 
 This project demonstrates how a neural network perceives a partially obscured digit 8 as the digit 3.
 

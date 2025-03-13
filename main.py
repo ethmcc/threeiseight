@@ -107,8 +107,6 @@ class Test:
 
 def test_number_is_number(test: Test, n):
     test.given_number(n)
-    test.snap(f"test_number_is_number_{n}.png")
-
     test.then_the_number_is(n)
 
 

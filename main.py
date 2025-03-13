@@ -49,6 +49,46 @@ def draw_number(number):
     return img
 
 
+def predict_number(image, model):
+    # Preprocess image for the model
+    img_array = np.array(image.resize((28, 28)))
+    img_array = img_array.reshape(1, 28, 28, 1) / 255.0
+
+    # Get prediction
+    [prediction] = model.predict(img_array)
+    predicted_number = np.argmax(prediction)
+    confidence = prediction[predicted_number]
+
+    return predicted_number, confidence
+
+
+def bite_image(image: Image.Image):
+    bitten = image.copy()
+    draw = ImageDraw.Draw(bitten)
+
+    width, height = image.size
+
+    # bite position
+    center_x = width * 0.35
+    center_y = height * 0.50
+
+    # bite radius
+    radius = 30
+
+    # take the bite
+    draw.ellipse(
+        [
+            center_x - radius,
+            center_y - radius,
+            center_x + radius,
+            center_y + radius,
+        ],
+        fill=BACKGROUND,
+    )
+
+    return bitten
+
+
 class Test:
     model: tf.keras.models.Model = None
     image: Image.Image = None
@@ -61,41 +101,10 @@ class Test:
         self.image = draw_number(n)
 
     def when_number_is_bitten(self):
-        bitten = self.image.copy()
-        draw = ImageDraw.Draw(bitten)
-
-        width, height = self.image.size
-
-        # bite position
-        center_x = width * 0.35
-        center_y = height * 0.50
-
-        # bite radius
-        radius = 30
-
-        # take the bite
-        draw.ellipse(
-            [
-                center_x - radius,
-                center_y - radius,
-                center_x + radius,
-                center_y + radius,
-            ],
-            fill=BACKGROUND,
-        )
-
-        self.image = bitten
+        self.image = bite_image(self.image)
 
     def then_the_number_is(self, expected_number):
-        # Preprocess image for the model
-        img_array = np.array(self.image.resize((28, 28)))
-        img_array = img_array.reshape(1, 28, 28, 1) / 255.0
-
-        # Get prediction
-        [prediction] = self.model.predict(img_array)
-        predicted_number = np.argmax(prediction)
-        confidence = prediction[predicted_number]
-
+        predicted_number, confidence = predict_number(self.image, self.model)
         assert (
             predicted_number == expected_number
         ), f"Expected {expected_number}, got {predicted_number} with confidence {confidence}"
